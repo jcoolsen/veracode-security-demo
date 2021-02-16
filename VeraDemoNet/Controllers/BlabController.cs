@@ -302,12 +302,22 @@ namespace VeraDemoNet.Controllers
                 {
                     dbContext.Database.Connection.Open();
 
-                    var commandType = Type.GetType("VeraDemoNet.Commands." + UpperCaseFirst(command) + "Command");
+                    IBlabberCommand cmd;
+                    switch (command)
+                    {
+                        case "listen":
+                            cmd = new ListenCommand(dbContext.Database.Connection, username);
+                            break;
 
-                    /* START BAD CODE */
-                    var cmdObj = (IBlabberCommand) Activator.CreateInstance(commandType, dbContext.Database.Connection, username);
-                    cmdObj.Execute(blabberUsername);
-                    /* END BAD CODE */
+                        case "ignore":
+                            cmd = new IgnoreCommand(dbContext.Database.Connection, username);
+                            break;
+
+                        default:
+                            throw new InvalidOperationException($"The command '{command}' was not recognized.");
+                    }
+
+                    cmd.Execute(blabberUsername);
                 }
             }
             catch (Exception ex)
@@ -450,11 +460,6 @@ namespace VeraDemoNet.Controllers
             }
 
             return blabViewModel;
-        }
-
-        private static string UpperCaseFirst(string subject)
-        {
-            return subject[0].ToString().ToUpper() + subject.Substring(1);
         }
     }
 }
