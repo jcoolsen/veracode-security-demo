@@ -38,11 +38,13 @@
                                         <img src="@(Url.Content("~/Images/" + post.Author.UserName + ".png"))" />
                                     </div>
                                     <div class="commentText">
-                                        @*START BAD CODE*@
-                                        <p class="">@Html.Raw(post.Content)</p>
-                                        @*END BAD CODE*@                                        
+
+                                        @* Don't use Html.Raw, that is a risk. *@
+                                        @* Don't use Html.Encode or Server.Encode, that will double encode content. *@
+                                        <p class="">@(post.Content)</p>
+
                                         <span class="date sub-text">by @(post.Author.BlabName) on @post.PostDateString</span>
-                                        <br/>
+                                        <br />
                                         <span class="date sub-text">
                                             <a href="@Url.Action("Blab", "Blab", new { blabId = post.Id } )">@(post.CommentCount) Comments </a>
                                         </span>
@@ -80,7 +82,11 @@
                         {
                             <li>
                                 <div class="commentText">
-                                    <p class="">@Html.Raw(post.Content)</p>
+
+                                    @* Don't use Html.Raw, that is a risk. *@
+                                    @* Don't use Html.Encode or Server.Encode, that will double encode content. *@
+                                    <p class="">@(post.Content)</p>
+
                                     <span class="date sub-text">by you on @post.PostDateString</span><br />
                                     <span class="date sub-text">
                                         <a href="@Url.Action("Blab", "Blab", new { blabId = post.Id } )">@post.CommentCount Comments</a>

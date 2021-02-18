@@ -54,11 +54,11 @@
                                         <img src="@(Url.Content("~/Images/" + comment.Author.UserName + ".png"))" />
                                     </div>
                                     <div class="blockquote">
-                                        <p class="">
-                                            @*START BAD CODE*@
-                                            "@Html.Raw(comment.Content)"
-                                            @*END BAD CODE*@
-                                        </p>
+
+                                        @* Don't use Html.Raw, that is a risk. *@
+                                        @* Don't use Html.Encode or Server.Encode, that will double encode content. *@
+                                        <p class="">"@(comment.Content)"</p>
+
                                         <span class="date sub-text">by @(comment.Author.BlabName) on @comment.TimestampString</span><br>
                                     </div>
                                 </div>
