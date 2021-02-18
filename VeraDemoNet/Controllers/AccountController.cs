@@ -48,7 +48,9 @@ namespace VeraDemoNet.Controllers
                 logger.Info("No user cookie");
                 Session["username"] = "";
 
-                ViewBag.ReturnUrl = ReturnUrl;
+                if (Url.IsLocalUrl(ReturnUrl)) {
+                    ViewBag.ReturnUrl = ReturnUrl;
+                }
                 return View();
             }
 
