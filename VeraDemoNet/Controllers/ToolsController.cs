@@ -51,13 +51,17 @@ namespace VeraDemoNet.Controllers
                 return "";
             }
 
-            var output = new StringBuilder();
-            try
+            if (Uri.CheckHostName(host) == UriHostNameType.Unknown)
             {
-                // START BAD CODE
+                string result = $"Invalid host name '{host}'.";
+                logger.Error(result);
+                return result;
+            }
+
+            var output = new StringBuilder();
+            try {
                 var fileName = "cmd.exe";
                 var arguments = "/c ping " + host;
-                // END BAD CODE
 
                 var proc = CreateStdOutProcess(fileName, arguments);
 
@@ -81,17 +85,25 @@ namespace VeraDemoNet.Controllers
         {
             var output = new StringBuilder();
 
-            if (string.IsNullOrEmpty(fortuneFile)) 
-            {
+            if (string.IsNullOrEmpty(fortuneFile)) {
                 fortuneFile = "funny.txt";
+            }
+            if (!fortuneFile.EndsWith(".txt", StringComparison.OrdinalIgnoreCase)) {
+                string result = $"Invalid file name '{fortuneFile}'.";
+                logger.Error(result);
+                return result;
+            }
+            string mappedFilePath = HostingEnvironment.MapPath("~/Resources/bin/" + fortuneFile);
+            if (!System.IO.File.Exists(mappedFilePath)) {
+                string result = $"File not found '{fortuneFile}'.";
+                logger.Error(result);
+                return result;
             }
 
             try
             {
-                // START BAD CODE
                 var fileName = "cmd.exe";
-                var arguments = "/c " + HostingEnvironment.MapPath("~/Resources/bin/fortune-go.exe") + " " + HostingEnvironment.MapPath("~/Resources/bin/" + fortuneFile);
-                // END BAD CODE
+                var arguments = "/c " + HostingEnvironment.MapPath("~/Resources/bin/fortune-go.exe") + " " + mappedFilePath;
 
                 var proc = CreateStdOutProcess(fileName, arguments);
 
