@@ -296,6 +296,7 @@
     <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Shared\_LoginLayout.cshtml" />
     <Content Include="Views\Blab\SearchBlabs.cshtml" />
+    <Content Include="Views\Error\GenericError.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helper\" />

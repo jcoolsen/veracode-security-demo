@@ -86,6 +86,7 @@ namespace VeraDemoNet.Controllers
             {
                 return RedirectToLogin(HttpContext.Request.RawUrl);
             }
+            if (searchText == "error") throw new Exception();
 
             var searchBlabslist = new List<BlabSearchResultViewModel>();
             using (var dbContext = new BlabberDB())
