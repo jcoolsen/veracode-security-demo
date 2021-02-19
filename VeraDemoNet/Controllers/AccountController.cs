@@ -203,21 +203,21 @@ namespace VeraDemoNet.Controllers
             // Update user profile image
             if (file != null &&  file.ContentLength > 0) 
             {
-                // Get old image name, if any, to delete
-                var oldImage = imageDir + userName + ".png";
-                
-                if (System.IO.File.Exists(oldImage))
+                byte[] imageData;
+                using (var memory = new MemoryStream())
                 {
-                    System.IO.File.Delete(oldImage);
+                    file.InputStream.CopyTo(memory);
+                    memory.Seek(0, SeekOrigin.Begin);
+                    imageData = memory.ToArray();
                 }
-		
-                var extension = Path.GetExtension(file.FileName).ToLower();
-                var newFilename = Path.Combine(imageDir, userName);
-                newFilename += extension;
-
-                logger.Info("Saving new profile image: " + newFilename);
-
-                file.SaveAs(newFilename);
+                string imageName = Regex.Replace(userName, @"[^\w]+", "");
+                if (imageName.Length > 64) imageName = imageName.Substring(0, 64);
+                string imagePath = Path.Combine(imageDir, imageName) + ".png";
+                if (imageData.Take(6).SequenceEqual(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }))
+                {
+                    logger.Info("Saving new profile image: " + imagePath);
+                    System.IO.File.WriteAllBytes(imagePath, imageData);
+                }
             }
 
             Response.StatusCode = (int)HttpStatusCode.OK;
@@ -304,9 +304,15 @@ namespace VeraDemoNet.Controllers
                 }
             }
 
+            string oldImageName = Regex.Replace(oldUsername, @"[^\w]+", "");
+            if (oldImageName.Length > 64) oldImageName = oldImageName.Substring(0, 64);
+
+            string newImageName = Regex.Replace(newUsername, @"[^\w]+", "");
+            if (newUsername.Length > 64) newUsername = newUsername.Substring(0, 64);
+
             var imageDir = HostingEnvironment.MapPath("~/Images/");
-            var oldFilename = Path.Combine(imageDir, oldUsername) + ".png";
-            var newFilename = Path.Combine(imageDir, newUsername) + ".png";
+            var oldFilename = Path.Combine(imageDir, oldImageName) + ".png";
+            var newFilename = Path.Combine(imageDir, newImageName) + ".png";
 
             if (System.IO.File.Exists(oldFilename))
             {
@@ -421,8 +427,11 @@ namespace VeraDemoNet.Controllers
 
         private string GetProfileImageNameFromUsername(string viewModelUserName)
         {
+            string imageName = Regex.Replace(viewModelUserName, @"[^\w]+", "");
+            if (imageName.Length > 64) imageName = imageName.Substring(0, 64);
+
             var imagePath = HostingEnvironment.MapPath("~/Images/");
-            var image =  Directory.EnumerateFiles(imagePath).FirstOrDefault(f => Path.GetFileNameWithoutExtension(f) == viewModelUserName);
+            var image =  Directory.EnumerateFiles(imagePath).FirstOrDefault(f => Path.GetFileNameWithoutExtension(f) == imageName);
 
             var filename = image == null ? "default_profile.png" : Path.GetFileName(image);
             
