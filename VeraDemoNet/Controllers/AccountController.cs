@@ -509,7 +509,7 @@ namespace VeraDemoNet.Controllers
             }
 
             // Use the user class to get the hashed password.
-            user.Password = Md5Hash(user.Password);
+            user.Password = Convert.ToBase64String(new PasswordHash(user.Password).ToArray());
             user.CreatedAt = DateTime.Now;
             
             using (var dbContext = new BlabberDB())

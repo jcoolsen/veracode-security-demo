@@ -196,6 +196,7 @@
     <Compile Include="Models\ProfileViewModel.cs" />
     <Compile Include="Models\ToolViewModel.cs" />
     <Compile Include="DataAccess\BasicUser.cs" />
+    <Compile Include="PasswordHash.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

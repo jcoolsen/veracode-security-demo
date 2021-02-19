@@ -1,4 +1,5 @@
-﻿using System.Data.SqlClient;
+﻿using System;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -19,17 +20,26 @@ namespace VeraDemoNet.Controllers
             using (var dbContext = new BlabberDB())
             {
                 var found = dbContext.Database.SqlQuery<BasicUser>(@"
-                    SELECT username, real_name as realname, blab_name as blabname, is_admin as isadmin
+                    SELECT username, real_name as realname, blab_name as blabname, is_admin as isadmin, password as hash
                     FROM users
-                    WHERE username = @username and password = @password ;",
-                    new SqlParameter("username", userName),
-                    new SqlParameter("password", Md5Hash(passWord))
+                    WHERE username = @username",
+                    new SqlParameter("username", userName)
                 ).ToList();
+
 
                 if (found.Count != 0)
                 {
-                    Session["username"] = userName;
-                    return found[0];
+                    PasswordHash ph;
+                    try {
+                        ph = new PasswordHash(Convert.FromBase64String(found[0].Hash));
+                    }
+                    catch (FormatException) {
+                        return null; 
+                    }
+                    if (ph.Verify(passWord)) {
+                        Session["username"] = userName;
+                        return found[0];
+                    }
                 }
             }
 
@@ -64,25 +74,5 @@ namespace VeraDemoNet.Controllers
                 }));
         }
 
-        protected static string Md5Hash(string input)
-        {
-            var sb = new StringBuilder();
-            if (string.IsNullOrEmpty(input))
-            {
-                return sb.ToString();
-            }
-
-            using (MD5 md5 = MD5.Create())
-            {
-                var retVal = md5.ComputeHash(Encoding.Unicode.GetBytes(input));
-
-                foreach (var t in retVal)
-                {
-                    sb.Append(t.ToString("x2"));
-                }
-            }
-
-            return sb.ToString();
-        }
     }
 }
