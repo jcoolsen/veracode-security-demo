@@ -9,6 +9,7 @@ using System.Net;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Hosting;
 using System.Web.Mvc;
@@ -437,6 +438,12 @@ namespace VeraDemoNet.Controllers
         {
             logger.Info("PostRegister processRegister");
             var registerViewModel = new RegisterViewModel();
+
+            if (!Regex.IsMatch(username, @"^\w+$"))
+            {
+                registerViewModel.Error = "Invalid user name. Only letters and digits allowed.";
+                return View(registerViewModel);
+            }
 
             Session["username"] = username;
 

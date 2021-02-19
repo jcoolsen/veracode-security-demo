@@ -24,20 +24,20 @@ namespace VeraDemoNet.Commands
             action.Parameters.Add(new SqlParameter{ParameterName = "@username", Value = username});
             action.ExecuteNonQuery();
 					
-            sqlQuery = "SELECT blab_name FROM users WHERE username = '" + blabberUsername + "'";
+            sqlQuery = "SELECT blab_name FROM users WHERE username = @blabber";
             
             var sqlStatement = connect.CreateCommand();
             sqlStatement.CommandText = sqlQuery;
+            sqlStatement.Parameters.Add(new SqlParameter { ParameterName = "@blabber", Value = blabberUsername });
             logger.Info(sqlQuery);
             var blabName = sqlStatement.ExecuteScalar();
 		
-            /* START BAD CODE */
             var ignoringEvent = username + " is now ignoring " + blabberUsername + "(" + blabName + ")";
-            sqlQuery = "INSERT INTO users_history (blabber, event) VALUES (\"" + username + "\", \"" + ignoringEvent + "\")";
+            sqlQuery = "INSERT INTO users_history (blabber, event) VALUES (@username, @ignoringEvent)";
 
             sqlStatement.CommandText = sqlQuery;
-
-            /* END BAD CODE */
+            sqlStatement.Parameters.Add(new SqlParameter { ParameterName = "@username", Value = username });
+            sqlStatement.Parameters.Add(new SqlParameter { ParameterName = "@ignoringEvent", Value = ignoringEvent });
 
             logger.Info(sqlQuery);
             sqlStatement.ExecuteNonQuery();
