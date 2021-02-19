@@ -198,6 +198,7 @@
     <Compile Include="DataAccess\BasicUser.cs" />
     <Compile Include="PasswordHash.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StringUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Data\VeraDemoNet.mdf">
