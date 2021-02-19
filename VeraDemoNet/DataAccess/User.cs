@@ -14,7 +14,7 @@ namespace VeraDemoNet.DataAccess
         [Column("password_hint")] public string PasswordHint { get; set; }
         [Column("created_at")] public DateTime CreatedAt { get; set; }
         [Column("last_login")] public DateTime? LastLogin { get; set; }
-        [Column("is_admin")] public bool IsAdmin { get; set; }
+        [Column("is_admin")] public bool IsAdmin { get; private set; }
 
         public static User Create(string userName, string blabName, string realName, bool isAdmin = false)
         {

@@ -545,7 +545,7 @@ namespace VeraDemoNet.Controllers
         }
 
         [HttpPost, ActionName("RegisterFinish")]
-        public ActionResult PostRegisterFinish(User user, string cpassword)
+        public ActionResult PostRegisterFinish([Bind(Include = "UserName, BlabName, RealName, Password")]User user, string cpassword)
         {
             if (user.Password != cpassword)
             {
