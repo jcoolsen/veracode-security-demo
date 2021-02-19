@@ -41,50 +41,16 @@ namespace VeraDemoNet.Controllers
                 return GetLogOut();
             }
 
+            /* As explained here https://paragonie.com/blog/2015/04/secure-authentication-php-with-long-term-persistence
+             * and here https://stackoverflow.com/questions/549/the-definitive-guide-to-form-based-website-authentication
+             * using 'remember me' is a huge task to implement remotely securely. The secure option is to not use that feature. */
 
-            var userDetailsCookie = Request.Cookies[COOKIE_NAME];
-
-            if (userDetailsCookie == null || userDetailsCookie.Value.Length == 0)
+            if (Url.IsLocalUrl(ReturnUrl))
             {
-                logger.Info("No user cookie");
-                Session["username"] = "";
-
-                if (Url.IsLocalUrl(ReturnUrl)) {
-                    ViewBag.ReturnUrl = ReturnUrl;
-                }
-                return View();
+                ViewBag.ReturnUrl = ReturnUrl;
             }
+            return View();
 
-            logger.Info("User details were remembered");
-            var unencodedUserDetails = Convert.FromBase64String(userDetailsCookie.Value);
-
-            CustomSerializeModel deserializedUser;
-
-            using (MemoryStream memoryStream = new MemoryStream(unencodedUserDetails))
-            {
-                var binaryFormatter = new BinaryFormatter();
-
-                // set memory stream position to starting point
-                memoryStream.Position = 0;
-
-                // Deserializes a stream into an object graph and return as a object.
-                /* START BAD CODE */
-                deserializedUser = binaryFormatter.Deserialize(memoryStream) as CustomSerializeModel;
-                /* END BAD CODE */
-                logger.Info("User details were retrieved for user: " + deserializedUser.UserName);
-            }
-
-            Session["username"] = deserializedUser.UserName;
-
-            //if (Url.IsLocalUrl(ReturnUrl))  
-            if (string.IsNullOrEmpty(ReturnUrl))
-            {
-                return RedirectToAction("Feed", "Blab");
-            }
-
-            /* START BAD CODE */
-            return Redirect(ReturnUrl);
-            /* END BAD CODE */
         }
 
         [HttpPost, ActionName("Login")]
@@ -108,36 +74,19 @@ namespace VeraDemoNet.Controllers
                         return View(loginViewModel);
                     }
 
-                    if (loginViewModel.RememberLogin)
-                    {
-                        var userModel = new CustomSerializeModel()
-                        {
-                            UserName = userDetails.UserName,
-                            BlabName = userDetails.BlabName,
-                            RealName = userDetails.RealName
-                        };
-
-                        using (var userModelStream = new MemoryStream())
-                        {
-                            IFormatter formatter = new BinaryFormatter();
-                            formatter.Serialize(userModelStream, userModel);
-                            var faCookie =
-                                new HttpCookie(COOKIE_NAME, Convert.ToBase64String(userModelStream.GetBuffer()))
-                                {
-                                    Expires = DateTime.Now.AddDays(30)
-                                };
-                            Response.Cookies.Add(faCookie);
-                        }
-                    }
+                    /* As explained here https://paragonie.com/blog/2015/04/secure-authentication-php-with-long-term-persistence
+                     * and here https://stackoverflow.com/questions/549/the-definitive-guide-to-form-based-website-authentication
+                     * using 'remember me' is a huge task to implement remotely securely. The secure option is to not use that feature. */
 
                     if (string.IsNullOrEmpty(ReturnUrl))
                     {
                         return RedirectToAction("Feed", "Blab");
                     }
+                    else if (Url.IsLocalUrl(ReturnUrl))
+                    {
+                        return Redirect(ReturnUrl);
+                    }
 
-                    /* START BAD CODE */
-                    return Redirect(ReturnUrl);
-                    /* END BAD CODE */
                 }
             }
             catch (Exception ex)
