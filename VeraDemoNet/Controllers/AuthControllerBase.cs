@@ -3,7 +3,9 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Web;
 using System.Web.Mvc;
+using System.Web.SessionState;
 using VeraDemoNet.DataAccess;
 
 namespace VeraDemoNet.Controllers
@@ -37,6 +39,9 @@ namespace VeraDemoNet.Controllers
                         return null; 
                     }
                     if (ph.Verify(passWord)) {
+                        //Session.Abandon();
+                        //Response.Cookies.Add(new HttpCookie("ASP.NET_SessionId", ""));
+
                         Session["username"] = userName;
                         return found[0];
                     }
